@@ -1,0 +1,30 @@
+{
+  "name": "phatbeat",
+  "version": "0.0.1",
+  "description": "Basic control for the Pimoroni pHAT BEAT",
+  "main": "phatbeat.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eminentspoon/phatbeat-node.git"
+  },
+  "keywords": [
+    "phatbeat",
+    "pi",
+    "gpio",
+    "raspberry",
+    "pi",
+    "pimoroni"
+  ],
+  "author": "eminentspoon",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eminentspoon/phatbeat-node/issues"
+  },
+  "homepage": "https://github.com/eminentspoon/phatbeat-node#readme",
+  "dependencies": {
+    "rpio": "^0.9.16"
+  }
+}
