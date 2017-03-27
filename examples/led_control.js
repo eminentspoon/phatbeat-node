@@ -1,13 +1,10 @@
-var app = require('express')();
-var phat = require("../phatbeat");
-var path = require("path");
-
-phat.init(0.8);
-var isOn = false;
+let app = require('express')();
+let phat = require("../phatbeat");
+let path = require("path");
 
 app.post('/led/', function (req, res) {
-    console.log(req.headers);
-    var responseObject = {
+    phat.init_led(0.8);
+    let responseObject = {
         newState : req.headers.state === "0" ? 1 : 0,
         red : Math.floor(Math.random() * 256),
         green : Math.floor(Math.random() * 256),
@@ -23,10 +20,11 @@ app.post('/led/', function (req, res) {
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(responseObject));
     res.end();
+    phat.teardown(false);
 });
 
 app.get("/", function (req, res) {
-    res.sendFile(path.join(__dirname + "/control_form.html"));
+    res.sendFile(path.join(__dirname + "/led_control_form.html"));
 });
 
 app.listen(3000, function () {
