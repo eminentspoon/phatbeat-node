@@ -1,4 +1,4 @@
-let rpio = require("rpio");
+let rpio = require("rpio"), stream = require("stream"), util = require("util");
 
 let DATA_PIN = 16;
 let CLOCK_PIN = 18;
@@ -12,7 +12,74 @@ let pixelCount = 16;
 let pixelsPerChannel = 8;
 let defaultBrightness = 7;
 let pixels = [];
-let registeredClickHandler;
+
+util.inherits(ButtonStream, stream.Readable);
+var buttonProto = ButtonStream.prototype;
+
+function ButtonStream(pin, options) {
+	if (!(this instanceof ButtonStream)) {
+		return new ButtonStream(pin);
+	}
+
+	if (!options) {
+		options = {};
+	}
+
+	options.objectMode = true;
+
+	stream.Readable.call(this, options);
+	rpio.open(pin, rpio.INPUT, rpio.PULL_UP);
+	this.monitorPin = pin;
+	this.monitor();
+}
+
+buttonProto.monitorPin;
+buttonProto.monitoring = false;
+buttonProto.buffer = [];
+buttonProto.lastPress = 0;
+buttonProto.closeTimeout = 5000;
+buttonProto.shouldClose = false;
+
+buttonProto.monitor = function () {
+	rpio.poll(this.monitorPin, function () {
+		let state = rpio.read(this.monitorPin) === 1 ? 0 : 1;
+		this.buffer.push(state);
+		this.emit("pinChange", this.monitorPin, state);
+		if (state === 1) {
+			this.lastPress = new Date().getTime();
+		} else {
+			if (this.lastPress > 0 && (new Date().getTime() - this.lastPress) > this.closeTimeout) {
+				this.shouldClose = true;
+				rpio.close(this.monitorPin);
+				this.emit("end", this.monitorPin);				
+			}
+			this.lastPress = 0;
+		}
+	}.bind(this));
+
+	this.monitoring = true;
+	setTimeout(function () { this.emit("monitoring", this.monitorPin) }.bind(this), 100);
+}
+
+buttonProto._read = function () {
+	if (this.shouldClose) {
+		return this.push(null);
+	}
+
+	if (!this.monitoring) {
+		return this.once('monitoring', function () {
+			this._read();
+		});
+	}
+
+	if (this.buffer.length === 0) {
+		return this.once('pinChange', function () {
+			this._read();
+		});
+	}
+
+	this.push(this.monitorPin + "," + this.buffer.shift().toString() + '\n');
+};
 
 let _start = function () {
 	rpio.write(DATA_PIN, 0);
@@ -39,7 +106,7 @@ let _writeByte = function (byte) {
 	}
 };
 
-let _closeButtons = function() {
+let _closeButtons = function () {
 	rpio.close(BFF_PIN);
 	rpio.close(BPP_PIN);
 	rpio.close(BRW_PIN);
@@ -64,11 +131,6 @@ let _validateBrightness = function (brightness) {
 	}
 };
 
-let _interimButtonClickHandler = function (pin) {
-	let state = rpio.read(pin) ? 0 : 1;
-	registeredClickHandler(pin, state);
-};
-
 function init_led(customBrightness) {
 	let brightnessToUse = defaultBrightness;
 
@@ -88,28 +150,6 @@ function init_led(customBrightness) {
 
 	rpio.open(DATA_PIN, rpio.OUTPUT);
 	rpio.open(CLOCK_PIN, rpio.OUTPUT);
-}
-
-function init_buttons(handlerFunction) {
-	if (handlerFunction === null) {
-		throw "No handler function provided, buttons not mapped";
-	}
-
-	rpio.open(BFF_PIN, rpio.INPUT, rpio.PULL_UP);
-	rpio.open(BPP_PIN, rpio.INPUT, rpio.PULL_UP);
-	rpio.open(BRW_PIN, rpio.INPUT, rpio.PULL_UP);
-	rpio.open(BUP_PIN, rpio.INPUT, rpio.PULL_UP);
-	rpio.open(BDN_PIN, rpio.INPUT, rpio.PULL_UP);
-	rpio.open(BOF_PIN, rpio.INPUT, rpio.PULL_UP);
-
-	registeredClickHandler = handlerFunction;
-
-	rpio.poll(BFF_PIN, _interimButtonClickHandler);
-	rpio.poll(BPP_PIN, _interimButtonClickHandler);
-	rpio.poll(BRW_PIN, _interimButtonClickHandler);
-	rpio.poll(BUP_PIN, _interimButtonClickHandler);
-	rpio.poll(BDN_PIN, _interimButtonClickHandler);
-	rpio.poll(BOF_PIN, _interimButtonClickHandler);
 }
 
 function changeSinglePixel(arrayIndex, red, green, blue, redraw, changeBrightness) {
@@ -162,37 +202,37 @@ function changeAllChannelPixels(red, green, blue, channel, redraw, changeBrightn
 	}
 }
 
-function getButtonPins(){
+function getButtonPins() {
 	let buttons = [];
-	
+
 	buttons.push({
-		pin : BFF_PIN,
-		name : "FAST_FORWARD"
+		pin: BFF_PIN,
+		name: "FAST_FORWARD"
 	});
 
 	buttons.push({
-		pin : BPP_PIN,
-		name : "PLAY_PAUSE"
+		pin: BPP_PIN,
+		name: "PLAY_PAUSE"
 	});
 
 	buttons.push({
-		pin : BRW_PIN,
-		name : "REWIND"
+		pin: BRW_PIN,
+		name: "REWIND"
 	});
 
 	buttons.push({
-		pin : BUP_PIN,
-		name : "VOL_UP"
+		pin: BUP_PIN,
+		name: "VOL_UP"
 	});
 
 	buttons.push({
-		pin : BDN_PIN,
-		name : "VOL_DOWN"
+		pin: BDN_PIN,
+		name: "VOL_DOWN"
 	});
 
 	buttons.push({
-		pin : BOF_PIN,
-		name : "POWER"
+		pin: BOF_PIN,
+		name: "POWER"
 	});
 
 	return buttons;
@@ -237,13 +277,12 @@ function turnOffAllPixels(redraw) {
 }
 
 function teardown(turnOff) {
-	if(turnOff){
+	if (turnOff) {
 		this.turnOffAllPixels(true);
 	}
 	_close();
 }
 module.exports.init_led = init_led;
-module.exports.init_buttons = init_buttons;
 module.exports.changeAllPixels = changeAllPixels;
 module.exports.changeSinglePixel = changeSinglePixel;
 module.exports.changeAllChannelPixels = changeAllChannelPixels;
@@ -251,6 +290,7 @@ module.exports.redraw = redraw;
 module.exports.turnOffAllPixels = turnOffAllPixels;
 module.exports.teardown = teardown;
 module.exports.getButtonPins = getButtonPins;
+module.exports.buttonStream = ButtonStream;
 
 module.exports.VERSION = "0.0.1";
 module.exports.PIXELCOUNT = pixelCount;
