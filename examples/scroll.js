@@ -5,7 +5,7 @@ let currentLoop = 0;
 let brightness = 1.0;
 let delay = 100;
 
-phatbeat.init();
+phatbeat.init_led();
 setLEDColourRecursive(15);
 
 function setLEDColourRecursive(ledInt) {
