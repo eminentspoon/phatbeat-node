@@ -41,7 +41,8 @@ You are able to either consume the underlying stream directly or attach to event
 **Stream Based**
 
 ```javascript
-//This will instantly pipe out the results of the stream to the terminal window. The format will be pin number, state (29,1). The state will either be 1 (pressed) or 0 (released)
+//This will instantly pipe out the results of the stream to the terminal window.
+//The format will be pin number, state (29,1). The state will either be 1 (pressed) or 0 (released)
 fastForwardStream.pipe(process.stdout)
 ```
 
