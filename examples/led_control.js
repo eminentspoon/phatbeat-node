@@ -1,5 +1,5 @@
 let app = require('express')();
-let phat = require("../phatbeat");
+let phat = require("../build/phatbeat");
 let path = require("path");
 
 app.post('/led/', function (req, res) {
@@ -12,10 +12,10 @@ app.post('/led/', function (req, res) {
     };
 
     if (req.headers.state === "0") {
-        phat.changeSinglePixel(Number(req.headers.pin), responseObject.red, responseObject.green, responseObject.blue, true);
+        phat.changeSingleLED(Number(req.headers.pin), responseObject.red, responseObject.green, responseObject.blue, true);
 
     } else {
-        phat.changeSinglePixel(Number(req.headers.pin), 0, 0, 0, true);
+        phat.changeSingleLED(Number(req.headers.pin), 0, 0, 0, true);
     }
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(responseObject));
@@ -28,5 +28,5 @@ app.get("/", function (req, res) {
 });
 
 app.listen(3000, function () {
-    console.log("server started on port 3000");
+    console.log("example server started on port 3000");
 });

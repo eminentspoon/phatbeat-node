@@ -1,4 +1,4 @@
-let phatbeat = require('../phatbeat');
+let phatbeat = require('../build/phatbeat');
 let maxLoops = 5;
 let currentLoop = 0;
 //must be between 0.1 and 1.0
@@ -9,9 +9,9 @@ phatbeat.init_led();
 setLEDColourRecursive(15);
 
 function setLEDColourRecursive(ledInt) {
-    phatbeat.changeSinglePixel(ledInt, ledInt % 2 === 0 ? 255 : 0, 0, ledInt % 2 > 0 ? 255 : 0, brightness, true);
+    phatbeat.changeSingleLED(ledInt, ledInt % 2 === 0 ? 255 : 0, 0, ledInt % 2 > 0 ? 255 : 0, brightness, true);
     setTimeout(function () {
-        phatbeat.turnOffAllPixels(true);
+        phatbeat.turnOffAllLEDs(true);
         let newLed;
         if (ledInt === 0 || ledInt === 15) {
             currentLoop++;

@@ -8,26 +8,20 @@ let BRW_PIN = 33;
 let BUP_PIN = 36;
 let BDN_PIN = 37;
 let BOF_PIN = 32;
-let pixelCount = 16;
-let pixelsPerChannel = 8;
+let ledCount = 16;
+let ledPerChannel = 8;
 let defaultBrightness = 7;
-let pixels = [];
+let leds = [];
 
 util.inherits(ButtonStream, stream.Readable);
 var buttonProto = ButtonStream.prototype;
 
-function ButtonStream(pin, options) {
+function ButtonStream(pin) {
 	if (!(this instanceof ButtonStream)) {
 		return new ButtonStream(pin);
 	}
 
-	if (!options) {
-		options = {};
-	}
-
-	options.objectMode = true;
-
-	stream.Readable.call(this, options);
+	stream.Readable.call(this);
 	rpio.open(pin, rpio.INPUT, rpio.PULL_UP);
 	this.monitorPin = pin;
 	this.monitor();
@@ -139,8 +133,8 @@ function init_led(customBrightness) {
 		brightnessToUse = _getBrightness(customBrightness);
 	}
 
-	for (let pixel = 0; pixel < pixelCount; pixel++) {
-		pixels.push({
+	for (let led = 0; led < ledCount; led++) {
+		leds.push({
 			red: 0,
 			green: 0,
 			blue: 0,
@@ -152,10 +146,10 @@ function init_led(customBrightness) {
 	rpio.open(CLOCK_PIN, rpio.OUTPUT);
 }
 
-function changeSinglePixel(arrayIndex, red, green, blue, redraw, changeBrightness) {
+function changeSingleLED(arrayIndex, red, green, blue, redraw, changeBrightness) {
 	let newBrightness = null;
 
-	if (arrayIndex > pixelCount - 1 || arrayIndex < 0) {
+	if (arrayIndex > ledCount - 1 || arrayIndex < 0) {
 		throw arrayIndex + " is not valid within the array";
 	}
 
@@ -164,17 +158,17 @@ function changeSinglePixel(arrayIndex, red, green, blue, redraw, changeBrightnes
 		newBrightness = _getBrightness(changeBrightness);
 	}
 
-	pixels[arrayIndex].red = red;
-	pixels[arrayIndex].green = green;
-	pixels[arrayIndex].blue = blue;
-	pixels[arrayIndex].brightness = newBrightness || pixels[arrayIndex].brightness;
+	leds[arrayIndex].red = red;
+	leds[arrayIndex].green = green;
+	leds[arrayIndex].blue = blue;
+	leds[arrayIndex].brightness = newBrightness || leds[arrayIndex].brightness;
 
 	if (redraw) {
 		this.redraw();
 	}
 }
 
-function changeAllChannelPixels(red, green, blue, channel, redraw, changeBrightness) {
+function changeAllChannelLEDs(red, green, blue, channel, redraw, changeBrightness) {
 	let validChannels = [0, 1];
 	let newBrightness = null;
 
@@ -187,14 +181,14 @@ function changeAllChannelPixels(red, green, blue, channel, redraw, changeBrightn
 		newBrightness = _getBrightness(changeBrightness);
 	}
 
-	let startingPosition = channel === 0 ? channel : pixelsPerChannel;
-	let endingPosition = channel === 0 ? channel + (pixelsPerChannel - 1) : (pixelsPerChannel * 2) - 1;
+	let startingPosition = channel === 0 ? channel : ledPerChannel;
+	let endingPosition = channel === 0 ? channel + (ledPerChannel - 1) : (ledPerChannel * 2) - 1;
 
 	for (let i = startingPosition; i <= endingPosition; i++) {
-		pixels[i].red = red;
-		pixels[i].green = green;
-		pixels[i].blue = blue;
-		pixels[i].brightness = newBrightness || pixels[i].brightness;
+		leds[i].red = red;
+		leds[i].green = green;
+		leds[i].blue = blue;
+		leds[i].brightness = newBrightness || leds[i].brightness;
 	}
 
 	if (redraw) {
@@ -238,18 +232,18 @@ function getButtonPins() {
 	return buttons;
 }
 
-function changeAllPixels(red, green, blue, redraw, changeBrightness) {
+function changeAllLEDs(red, green, blue, redraw, changeBrightness) {
 	let newBrightness = null;
 	if (changeBrightness) {
 		_validateBrightness(changeBrightness);
 		newBrightness = _getBrightness(changeBrightness);
 	}
 
-	for (let pixel = 0; pixel < pixelCount; pixel++) {
-		pixels[pixel].red = red;
-		pixels[pixel].green = green;
-		pixels[pixel].blue = blue;
-		pixels[pixel].brightness = newBrightness || pixels[pixel].brightness;
+	for (let led = 0; led < ledCount; led++) {
+		leds[led].red = red;
+		leds[led].green = green;
+		leds[led].blue = blue;
+		leds[led].brightness = newBrightness || leds[led].brightness;
 	}
 
 	if (redraw) {
@@ -260,17 +254,17 @@ function changeAllPixels(red, green, blue, redraw, changeBrightness) {
 
 function redraw() {
 	_start();
-	for (let i = 0; i < pixels.length; i++) {
-		_writeByte(0b11100000 | pixels[i].brightness);
-		_writeByte(Number(pixels[i].blue) & 0xff);
-		_writeByte(Number(pixels[i].green) & 0xff);
-		_writeByte(Number(pixels[i].red) & 0xff);
+	for (let i = 0; i < leds.length; i++) {
+		_writeByte(0b11100000 | leds[i].brightness);
+		_writeByte(Number(leds[i].blue) & 0xff);
+		_writeByte(Number(leds[i].green) & 0xff);
+		_writeByte(Number(leds[i].red) & 0xff);
 	}
 	_end();
 }
 
-function turnOffAllPixels(redraw) {
-	changeAllPixels(0, 0, 0);
+function turnOffAllLEDs(redraw) {
+	changeAllLEDs(0, 0, 0);
 	if (redraw) {
 		this.redraw();
 	}
@@ -278,20 +272,21 @@ function turnOffAllPixels(redraw) {
 
 function teardown(turnOff) {
 	if (turnOff) {
-		this.turnOffAllPixels(true);
+		this.turnOffAllLEDs(true);
 	}
 	_close();
 }
+
 module.exports.init_led = init_led;
-module.exports.changeAllPixels = changeAllPixels;
-module.exports.changeSinglePixel = changeSinglePixel;
-module.exports.changeAllChannelPixels = changeAllChannelPixels;
+module.exports.changeAllLEDs = changeAllLEDs;
+module.exports.changeSingleLED = changeSingleLED;
+module.exports.changeAllChannelLEDs = changeAllChannelLEDs;
 module.exports.redraw = redraw;
-module.exports.turnOffAllPixels = turnOffAllPixels;
+module.exports.turnOffAllLEDs = turnOffAllLEDs;
 module.exports.teardown = teardown;
 module.exports.getButtonPins = getButtonPins;
 module.exports.buttonStream = ButtonStream;
 
 module.exports.VERSION = "0.0.1";
-module.exports.PIXELCOUNT = pixelCount;
-module.exports.CHANNEL_PIXELS = pixelsPerChannel;
+module.exports.LEDCOUNT = ledCount;
+module.exports.CHANNEL_LEDS = ledPerChannel;

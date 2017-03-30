@@ -1,4 +1,4 @@
-let phat = require("../phatbeat");
+let phat = require("../build/phatbeat");
 let buttons = phat.getButtonPins();
 
 for(let i = 0; i < buttons.length; i++){

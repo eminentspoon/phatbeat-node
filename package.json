@@ -2,9 +2,13 @@
   "name": "phatbeat",
   "version": "0.0.1",
   "description": "Basic control for the Pimoroni pHAT BEAT from node",
-  "main": "phatbeat.js",
+  "main": "build/phatbeat.js",
   "scripts": {
-    "test": "echo \"Error: no tests available due to hardware dependencies\" && exit 1"
+    "build" : "babel src -d build",
+    "test" : "jest"
+  },
+  "babel":{
+    "presets" : ["env"]
   },
   "repository": {
     "type": "git",
@@ -15,7 +19,7 @@
     "pi",
     "gpio",
     "raspberry",
-    "pi",
+    "raspberry pi",
     "pimoroni"
   ],
   "author": "eminentspoon",
@@ -30,6 +34,9 @@
   "devDependencies": {
     "express": "^4.15.2",
     "fs": "0.0.1-security",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "babel-cli" : "6.24.0",
+    "babel-preset-env": "1.2.2",
+    "jest" : "19.0.2"
   }
 }

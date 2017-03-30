@@ -8,7 +8,7 @@
         html {
             padding: 0;
             margin: 0;
-            font-family: "Ubuntu", Helvetica, Arial, sans-serif;
+            font-family: Helvetica, Arial, sans-serif;
             font-size: 14px;
             width: 80%;
             margin: 0 auto;
@@ -31,10 +31,10 @@
             float: left;
             margin-right: 10px;
         }
-
-        .channel.pirate{
+        
+        .channel.pirate {
             transform: rotate(180deg);
-            float:right;
+            float: right;
         }
         
         .pin {
@@ -67,7 +67,7 @@
 
 <body>
     <h1>pHAT BEAT Control Test</h1>
-    <p>A simple demonstration to show the possibilities of node controlled access to the pHAT BEAT device.</p>
+    <p>A simple demonstration to show the possibilities of node controlled access to the pHAT BEAT device's LEDs.</p>
     <div class="container">
         <div class="channel">
             <div class="pin" data-pinno="7" data-state="0" onclick="javascript:handleClick(this)"></div>
@@ -95,9 +95,9 @@
     </div>
     <script type="text/javascript" language="javascript">
         function pirateChange(ele) {
-            if(ele.checked){
+            if (ele.checked) {
                 $(".channel").addClass("pirate");
-            }else{
+            } else {
                 $(".channel").removeClass("pirate");
             }
         }
