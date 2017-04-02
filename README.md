@@ -115,7 +115,7 @@ phatbeat.turnOffAllLEDs(true);
 
 
 //cleanly disconnects the GPIO pins used
-//note: this only detaches the LEDs pins, the current state of the LEDs will remain as per last redraw
+//note: this only detaches the LEDs pins, the state of the LEDs will remain as per last redraw
 module.exports.teardown = teardown;
 ````
 
