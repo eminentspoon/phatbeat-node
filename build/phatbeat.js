@@ -20,18 +20,12 @@ var leds = [];
 util.inherits(ButtonStream, stream.Readable);
 var buttonProto = ButtonStream.prototype;
 
-function ButtonStream(pin, options) {
+function ButtonStream(pin) {
 	if (!(this instanceof ButtonStream)) {
 		return new ButtonStream(pin);
 	}
 
-	if (!options) {
-		options = {};
-	}
-
-	options.objectMode = true;
-
-	stream.Readable.call(this, options);
+	stream.Readable.call(this);
 	rpio.open(pin, rpio.INPUT, rpio.PULL_UP);
 	this.monitorPin = pin;
 	this.monitor();
@@ -298,6 +292,6 @@ module.exports.teardown = teardown;
 module.exports.getButtonPins = getButtonPins;
 module.exports.buttonStream = ButtonStream;
 
-module.exports.VERSION = "0.0.1";
+module.exports.VERSION = "1.0.0";
 module.exports.LEDCOUNT = ledCount;
 module.exports.CHANNEL_LEDS = ledPerChannel;

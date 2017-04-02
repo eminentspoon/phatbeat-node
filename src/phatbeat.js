@@ -45,7 +45,7 @@ buttonProto.monitor = function () {
 			if (this.lastPress > 0 && (new Date().getTime() - this.lastPress) > this.closeTimeout) {
 				this.shouldClose = true;
 				rpio.close(this.monitorPin);
-				this.emit("end", this.monitorPin);				
+				this.emit("end", this.monitorPin);
 			}
 			this.lastPress = 0;
 		}
@@ -287,6 +287,6 @@ module.exports.teardown = teardown;
 module.exports.getButtonPins = getButtonPins;
 module.exports.buttonStream = ButtonStream;
 
-module.exports.VERSION = "0.0.1";
+module.exports.VERSION = "1.0.0";
 module.exports.LEDCOUNT = ledCount;
 module.exports.CHANNEL_LEDS = ledPerChannel;
