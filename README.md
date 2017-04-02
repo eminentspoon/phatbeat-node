@@ -39,7 +39,7 @@ let fastForwardStream = phatbeat.ButtonStream(29);
 ```
 You are able to either consume the underlying stream directly or attach to events specifically.
 
-**Stream Based**
+##### Stream Based
 
 ```javascript
 //this example will instantly pipe out the results of the stream to the terminal window.
@@ -47,7 +47,7 @@ You are able to either consume the underlying stream directly or attach to event
 fastForwardStream.pipe(process.stdout)
 ```
 
-**Event Based**
+##### Event Based
 
 ```javascript
 //Three events are exposed and are emitted whenever an underlying state change is detected
@@ -74,7 +74,7 @@ Each LED on the 8x2 array is able to be controlled individually and can have its
 ````javascript
 let phatbeat = require('phatbeat');
 //the init_led function sets up the appropriate GPIO pins
-//it takes an optional parameter of brightness which controls how bright the LEDs, this is a decimal between 0.1 and 1.0
+//optional parameter of brightness of leds, this is a decimal between 0.1 and 1.0
 phatbeat.init_led(0.8);
 ````
 
@@ -84,7 +84,7 @@ Once initialised, you have a number of options available to control the LEDs:
 //changes every LED to the same colour / settings
 //method signature takes in RGB colour values
 //boolean paramter states whether or not the changes made should be redrawn immediately or staged
-//final parameter is an optional parameter for new brightness, if not supplied, the previous value will be retained
+//final parameter is optional for new brightness value, the previous value will be retained if not
 phatbeat.changeAllLEDs(255, 0, 0, true, 0.8)
 
 
@@ -92,7 +92,7 @@ phatbeat.changeAllLEDs(255, 0, 0, true, 0.8)
 //method signature takes in index of the LED to change (0-15)
 //RGB colour values
 //boolean paramter states whether or not the changes made should be redrawn immediately or staged
-//final parameter is an optional parameter for new brightness, if not supplied, the previous value will be retained
+//final parameter is optional for new brightness value, the previous value will be retained if not
 phatbeat.changeSingleLED(7, 255, 0, 0, true, 0.8)
 
 
@@ -100,7 +100,7 @@ phatbeat.changeSingleLED(7, 255, 0, 0, true, 0.8)
 //method signature takes in RGB colour values
 //int value of the channel to change the LEDs in (0, 1)
 //boolean paramter states whether or not the changes made should be redrawn immediately or staged
-//final parameter is an optional parameter for new brightness, if not supplied, the previous value will be retained
+//final parameter is optional for new brightness value, the previous value will be retained if not
 phatbeat.changeAllChannelLEDs(255, 0, 0, 1, true, 0.8);
 
 
@@ -110,7 +110,7 @@ phatbeat.redraw()
 
 
 //sets all LEDs to 'off'
-//optional parameter of whether to redraw the changes instantly or to be staged, default is to stage for later update
+//optional parameter of whether to redraw the changes instantly or to be staged, default is to stage
 phatbeat.turnOffAllLEDs(true);
 
 
