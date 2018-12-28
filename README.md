@@ -35,7 +35,7 @@ To initialise and attach to a button stream:
 ```javascript
 let phatbeat = require('phatbeat');
 //this attaches the monitoring to the underlying GPIO pin
-let fastForwardStream = phatbeat.ButtonStream(29);
+let fastForwardStream = phatbeat.buttonStream(29);
 ```
 You are able to either consume the underlying stream directly or attach to events specifically.
 
